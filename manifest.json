@@ -1,6 +1,6 @@
 {
 	"id": "obsidian-markline",
-	"name": "Markline for Obsidian.md",
+	"name": "Markline",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Show timeline from markdown in Obsidian.",
