@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-markline",
+	"name": "Markline for Obsidian.md",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Show timeline from markdown in Obsidian.",
+	"author": "闲耘",
+	"authorUrl": "https://hotoo.github.io/",
+	"fundingUrl": "",
 	"isDesktopOnly": false
 }
