@@ -5,11 +5,11 @@ import { Processor } from './processor';
 // Remember to rename these classes and interfaces!
 
 interface MarklinePluginSettings {
-	mySetting: string;
+	showAge: boolean;
 }
 
 const DEFAULT_SETTINGS: MarklinePluginSettings = {
-	mySetting: ''
+	showAge: false
 }
 
 export default class MarklinePlugin extends Plugin {
@@ -27,7 +27,6 @@ export default class MarklinePlugin extends Plugin {
 				editor.replaceSelection('```markline\n- 2023-12-01~ demo\n```');
 			}
 		});
-
 
     // this.registerView(
     //   VIEW_TYPE_MARKLINE,
@@ -100,13 +99,12 @@ class MarklineSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+			.setName('Markline show age')
+			.setDesc('show age number after date.')
+			.addToggle(text => text
+				.setValue(this.plugin.settings.showAge)
+				.onChange(async (value: boolean) => {
+					this.plugin.settings.showAge = value;
 					await this.plugin.saveSettings();
 				}));
 	}

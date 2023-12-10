@@ -21,8 +21,6 @@
   },
   "include": [
     "**/*.ts",
-    "MarklineView.tsx",
-    "timeline.tsx",
-    "markline.tsx"
+    "**/*.tsx"
   ]
 }
