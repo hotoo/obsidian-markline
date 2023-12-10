@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Timeline } from "./timeline";
+import { Timeline, IEvent } from "./timeline";
 
 const DEFAULT_MENTION_URL = "https://github.com/{@mention}";
 
@@ -48,7 +48,7 @@ function parseDate(date_string?: string): Date {
 function parseDateEnd(date: string): Date {
 
   const RE_YEAR = /^\d{4}$/;
-  const RE_MONTH = /^\d{4}[\/\-]\d{1,2}$/;
+  const RE_MONTH = /^\d{4}[/-]\d{1,2}$/;
   // const RE_DATE = /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/;
 
   const dt = parseDate(date);
@@ -72,15 +72,15 @@ function parseDateEnd(date: string): Date {
 // @return {String} html tags.
 // TODO: meta types.
 function parseMarkdown(markdown: string, meta: any){
-  const RE_IMAGE = /!\[([^\]]*)\]\(([^\)]+)\)/g;
-  const RE_LINK = /\[([^\]]*)\]\(([^\)]+)\)/g;
+  const RE_IMAGE = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  const RE_LINK = /\[([^\]]*)\]\(([^)]+)\)/g;
   const RE_STRONG = /(\*\*|__)(.*?)\1/g;
   const RE_EM = /(\*|_)(.*?)\1/g;
-  const RE_DELETE = /(\~\~?)(.*?)\1/g;
+  const RE_DELETE = /(~~?)(.*?)\1/g;
   const RE_CODE = /`([^`]+)`/g
-  const RE_MENTION = /(^|[^a-zA-Z0-9])@([^\s\t,\(\)\[\]\{\}]+)/g;
+  const RE_MENTION = /(^|[^a-zA-Z0-9])@([^\s\t,()[\]{}]+)/g;
   const RE_MENTION_PLACEHOLDER = /\{@mention\}/ig;
-  const RE_HASHTAG = /(?:^|[\s\t])\#([^\s\t]+)/g;
+  const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
 
   let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank">$1</a>');
   html = html.replace(RE_LINK, '<a href="$2" target="_blank">$1</a>');
@@ -130,18 +130,18 @@ function parse(markdown: string){
   };
 
   const re_title = /^#\s+(.*)$/;
-  const re_meta = /^[\+\-\*]\s+([^:]+):\s*(.*)$/;
-  const re_submeta = /^[\s\t]+[\-\*]\s+([^:]+):\s*(.*)$/;
-  const re_hr = /^\-{2,}$/;
+  const re_meta = /^[+\-*]\s+([^:]+):\s*(.*)$/;
+  const re_submeta = /^[\s\t]+[-*]\s+([^:]+):\s*(.*)$/;
+  const re_hr = /^-{2,}$/;
   const re_group = /^##{1,5}\s+(.*)$/;
-  const re_line  = /^[\+\*\-]\s+(([0-9\/\-]+)(?:~([0-9\/\-]*))?)\s+(.*)$/;
-  const re_event  = /^\s+[\+\*\-]\s+(([0-9\/\-]+)(?:~([0-9\/\-]*))?)\s+(.*)$/;
+  const re_line  = /^[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
+  const re_event  = /^\s+[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
 
   let current_group = "";
   let current_line;
   let inline = false; // into group, line, or event body.
   let inmeta = false;
-  let current_meta_name;
+  let current_meta_name = '';
   let current_meta_value;
 
   function addGroup(group_name: string){
@@ -178,13 +178,16 @@ function parse(markdown: string){
       const meta_name = match[1];
       const meta_value = match[2];
       data.meta[current_meta_name][meta_name] = meta_value;
+      // eslint-disable-next-line
       inmeta = true;
     } else if (text_line.match(re_hr)){
       addGroup("");
+    // eslint-disable-next-line no-cond-assign
     } else if (match = text_line.match(re_group)){
       // PARSE GRPUPS.
       const group_name = match[1];
       addGroup(group_name);
+    // eslint-disable-next-line no-cond-assign
     } else if (match = text_line.match(re_line)){
       // PARSE EVENT LINES.
 
@@ -200,12 +203,13 @@ function parse(markdown: string){
         "date-start": parseDate(line_start),
         "date-end": parseDateEnd(line_stop),
         "name": parseMarkdown(line_name, data.meta),
-        "events": []
+        "events": [] as IEvent[],
       };
       data.body[current_group].push(data_line);
       current_line = data_line;
 
       inline = true;
+    // eslint-disable-next-line no-cond-assign
     } else if (match = text_line.match(re_event)) {
       // PARSE SUB EVENT POINTS.
 
@@ -214,7 +218,7 @@ function parse(markdown: string){
       const date_end = match[3] === undefined ? date_start : match[3];
       const name = match[4];
 
-      current_line.events.push({
+      current_line?.events.push({
         "date": date,
         "date-start": parseDate(date_start),
         "date-end": parseDateEnd(date_end),

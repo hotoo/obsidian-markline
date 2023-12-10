@@ -4,7 +4,7 @@ import * as React from "react";
 const offset_left = 30; // offset left for group name.
 const year_width = 100; // width per date (year).
 
-interface IEvent {
+export interface IEvent {
   name: string;
   date: string;
   'date-start': Date;
