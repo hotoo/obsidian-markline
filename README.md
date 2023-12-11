@@ -18,7 +18,7 @@ Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/l
 ## Demo
 
 ```markdown
-\`\`\`markline
+```markline
 # My Documnet Title
 
 - 2023 A full year event.
@@ -26,7 +26,7 @@ Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/l
   - 2023-05~2023-08 subevent 2
 - 2023-01 month event name.
 - 2023-01-02 event name with [link](https://github.com/hotoo/obsidian-markline).
-\`\`\`
+```‌
 ```
 
 ## Markdown
