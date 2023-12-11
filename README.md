@@ -1,13 +1,13 @@
 # Obsidian Markline
 
-This is [Markline](https://github.com/hotoo/markline) plugin for Obsidian.
-
-![screenshot](./assets/screenshot.png)
+This is fork of [Markline](https://github.com/hotoo/markline), show timeline view from markdown in Obsidian editor.
 
 ## Feature
 
 - Show timeline view in Obsidian Editor with `markline` code blockquote.
 - Add markline code blockquote by command.
+
+![screenshot](./assets/screenshot.png)
 
 ## Install
 
