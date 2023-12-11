@@ -15,17 +15,24 @@ Manual installation:
 
 Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/latest) into your `<vault>/.obsidian/plugins/markline` folder.
 
-## Demo
+## Examples
 
 ```markdown
 ```markline
 # My Documnet Title
+
+## group name (optional)
 
 - 2023 A full year event.
   - 2023-01~2023-03 subevent
   - 2023-05~2023-08 subevent 2
 - 2023-01 month event name.
 - 2023-01-02 event name with [link](https://github.com/hotoo/obsidian-markline).
+
+## another group
+
+- 2013 another list item.
+- 2013-05-05 yet another list item.
 ```‌
 ```
 
@@ -188,25 +195,6 @@ for anonymous group.
 ```
 
 Want more markdown syntax feature? make [issues](https://github.com/hotoo/obsidian-markline/issues), fork and pull request.
-
-### Examples
-
-```
-# document name(title)
-
-## group name (optional)
-
-* 2012~2014 list 1
-  - 2012/02 sub list 2.1
-  - 2013/08/02~2013/12/20 sub list 2.2
-* 2012/02 list 2
-* 2012/02/02 list 3
-
-## another group
-
-- 2013 another list item.
-- 2013-05-05 yet another list item.
-```
 
 ### References
 
