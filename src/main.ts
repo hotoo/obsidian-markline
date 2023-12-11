@@ -20,7 +20,7 @@ export default class MarklinePlugin extends Plugin {
 			name: 'Add markline block quote',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				// console.log(editor.getSelection());
-				editor.replaceSelection('```markline\n- 2023-12-01~ demo, more information see [obsidian-markline](https://github.com/hotoo/obsidian-markline).\n```');
+				editor.replaceSelection('```markline\n- 2023-12-01~ demo\n- 2023 more information see [obsidian-markline](https://github.com/hotoo/obsidian-markline).\n```');
 			}
 		});
 
