@@ -287,3 +287,48 @@ If your plugin does not need CSS, delete this file.
   background: #eee;
   -moz-border-radius:100%; -khtml-border-radius:100%; -webkit-border-radius:100%; border-radius:100%;
 }
+
+/* light theme */
+.markline.markline-light {
+  background-color: #ecf0f1;
+  color: #666;
+}
+.markline.markline-light>section>.dates>ol>li>label {
+  background-color: #ecf0f1;
+}
+.markline.markline-light > section > .dates > ol > li {
+  border-left: 1px dashed rgba(0, 0, 0, 0.2);
+}
+.markline.markline-light>section>.events>.groups>ol>li>div {
+  background-color: transparent;
+}
+.markline.markline-light>section>.events>.groups>label {
+  background-color: #ecf0f1;
+}
+.markline.markline-light>section>.events>.groups>ol>li>div>ol {
+  background-color: #1abc9c;
+}
+.markline.markline-light>section>.events>.groups>ol>li>div>time {
+  color: #888;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > time,
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > label {
+  color: #000
+}
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > label a {
+  color: #8EA3F0;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
+  color: rgba(0, 0, 0, 0.5);
+}
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
+  background-color: #3fdc9c;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div > ol > li {
+  background-color: #3fdc9c;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div > ol > li:hover {
+  background-color: #1abc9c;
+  border-color: #fff;
+  margin-top: 0px;
+}

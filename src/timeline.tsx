@@ -246,7 +246,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     });
 
     return (
-      <div className="markline">
+      <div className={`markline markline-${data.meta.theme}`}>
         <header dangerouslySetInnerHTML={{ __html: data.title || ''}}></header>
         <section
           onMouseDownCapture={this.onMouseDown}

@@ -9,12 +9,20 @@ function isString (object: any){
 
 interface IMarklineProps {
   markdown: string;
+  showAge: boolean;
+  theme: 'dark' | 'light';
 }
 
 export class Markline extends React.Component<IMarklineProps> {
   render() {
-    const {markdown} = this.props;
+    const {markdown, showAge, theme} = this.props;
     const data = parse(markdown);
+    if (showAge && data.meta.age !== 'show') {
+      data.meta.age = 'show';
+    }
+    if (theme && !data.meta.theme) {
+      data.meta.theme = theme;
+    }
     return (
       <Timeline data={data} />
     )
