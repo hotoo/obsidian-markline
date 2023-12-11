@@ -141,7 +141,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       "group:start": function(group_name: string){
         body_events.push(
           '<div class="groups">',
-            '<label>', group_name, '</label>',
+            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group_name, '</label>',
             '<ol>'
         );
       },
