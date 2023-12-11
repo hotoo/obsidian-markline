@@ -1,15 +1,14 @@
 import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian';
 // import { MarklineView, VIEW_TYPE_MARKLINE } from "./MarklineView";
+import { MarklinePluginSettings } from './types';
 import { Processor } from './processor';
 
 // Remember to rename these classes and interfaces!
 
-interface MarklinePluginSettings {
-	showAge: boolean;
-}
 
 const DEFAULT_SETTINGS: MarklinePluginSettings = {
-	showAge: false
+	showAge: false,
+	theme: 'dark',
 }
 
 export default class MarklinePlugin extends Plugin {
@@ -24,7 +23,7 @@ export default class MarklinePlugin extends Plugin {
 			name: 'Add markline block quote',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				// console.log(editor.getSelection());
-				editor.replaceSelection('```markline\n- 2023-12-01~ demo\n```');
+				editor.replaceSelection('```markline\n- 2023-12-01~ demo, more information see [obsidian-markline](https://github.com/hotoo/obsidian-markline).\n```');
 			}
 		});
 
@@ -37,6 +36,7 @@ export default class MarklinePlugin extends Plugin {
     // });
 
 		// 渲染 markline 组件
+		// const processor = new Processor(this.settings);
     this.registerMarkdownCodeBlockProcessor("markline", Processor.render);
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -44,12 +44,12 @@ export default class MarklinePlugin extends Plugin {
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
+		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+		// 	console.log('click', evt);
+		// });
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
@@ -106,6 +106,18 @@ class MarklineSettingTab extends PluginSettingTab {
 				.onChange(async (value: boolean) => {
 					this.plugin.settings.showAge = value;
 					await this.plugin.saveSettings();
-				}));
+				})
+			);
+		new Setting(containerEl)
+			.setName('Theme')
+			.setDesc('markline view theme')
+			.addDropdown(dropDown => {
+				dropDown.addOption('dark', 'Dark');
+				dropDown.addOption('light', 'Light');
+				dropDown.onChange(async (value: 'light' | 'dark') =>	{
+					this.plugin.settings.theme = value;
+					await this.plugin.saveSettings();
+				})}
+			);
 	}
 }
