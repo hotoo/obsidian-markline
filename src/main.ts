@@ -3,9 +3,6 @@ import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting } from 'ob
 import { MarklinePluginSettings } from './types';
 import { Processor } from './processor';
 
-// Remember to rename these classes and interfaces!
-
-
 const DEFAULT_SETTINGS: MarklinePluginSettings = {
 	showAge: false,
 	theme: 'dark',
@@ -36,8 +33,8 @@ export default class MarklinePlugin extends Plugin {
     // });
 
 		// 渲染 markline 组件
-		// const processor = new Processor(this.settings);
-    this.registerMarkdownCodeBlockProcessor("markline", Processor.render);
+		const processor = new Processor(this.settings);
+    this.registerMarkdownCodeBlockProcessor("markline", processor.render);
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new MarklineSettingTab(this.app, this));
@@ -114,6 +111,7 @@ class MarklineSettingTab extends PluginSettingTab {
 			.addDropdown(dropDown => {
 				dropDown.addOption('dark', 'Dark');
 				dropDown.addOption('light', 'Light');
+				dropDown.setValue(this.plugin.settings.theme);
 				dropDown.onChange(async (value: 'light' | 'dark') =>	{
 					this.plugin.settings.theme = value;
 					await this.plugin.saveSettings();

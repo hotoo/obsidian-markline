@@ -291,7 +291,7 @@ If your plugin does not need CSS, delete this file.
 /* light theme */
 .markline.markline-light {
   background-color: #ecf0f1;
-  color: rgba(0, 0, 0, 0.8);
+  color: #666;
 }
 .markline.markline-light>section>.dates>ol>li>label {
   background-color: #ecf0f1;
@@ -309,12 +309,26 @@ If your plugin does not need CSS, delete this file.
   background-color: #1abc9c;
 }
 .markline.markline-light>section>.events>.groups>ol>li>div>time {
-  color: #000
+  color: #888;
 }
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > time,
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > label {
   color: #000
 }
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > label a {
+  color: #8EA3F0;
+}
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
   color: rgba(0, 0, 0, 0.5);
+}
+.markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
+  background-color: #3fdc9c;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div > ol > li {
+  background-color: #3fdc9c;
+}
+.markline.markline-light > section > .events > .groups > ol > li > div > ol > li:hover {
+  background-color: #1abc9c;
+  border-color: #fff;
+  margin-top: 0px;
 }
