@@ -11,6 +11,8 @@ This is fork of [Markline](https://github.com/hotoo/markline), show timeline vie
 
 ## Install
 
+Community plugins will be soon https://github.com/obsidianmd/obsidian-releases/pull/2779
+
 Manual installation:
 
 Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/latest) into your `<vault>/.obsidian/plugins/markline` folder.
