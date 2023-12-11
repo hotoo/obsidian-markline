@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-markline",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "This is a timeline viewer from markdown in Obsidian (https://github.com/hotoo/markline)",
 	"main": "main.js",
 	"scripts": {

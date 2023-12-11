@@ -28,17 +28,31 @@ interface TimelineProps {
   data: MarklineData;
 }
 interface TimelineState {
+  scrollTop: number;
   scrollLeft: number;
+  mouseStartX: number;
+  mouseStartY: number;
+  viewStartX: number;
+  viewStartY: number;
+  dragging: boolean;
 }
 
 export class Timeline extends React.Component<TimelineProps, TimelineState> {
   refDates: any;
+  refBody: any;
 
   constructor(props: TimelineProps) {
     super(props);
     this.refDates = React.createRef();
+    this.refBody = React.createRef();
     this.state = {
+      scrollTop: 0,
       scrollLeft: 0,
+      mouseStartX: 0,
+      mouseStartY: 0,
+      viewStartX: 0,
+      viewStartY: 0,
+      dragging: false,
     };
   }
 
@@ -86,14 +100,54 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
   }
 
   onScroll = (evt: any) => {
-    const scrollLeft = evt.currentTarget.scrollLeft;
+    const { scrollTop, scrollLeft } = evt.currentTarget;
     this.setState({
       scrollLeft,
+      scrollTop,
     });
+  }
 
-    // me.header.css({"left": -me.body.scrollLeft()});
-    // const groups = $(".groups > label", me._element);
-    // groups.css({"left": evt.scrollLeft - 90});
+  onMouseDown = (evt: any) => {
+    const { clientX, clientY } = evt;
+    this.setState({
+      mouseStartX: clientX,
+      mouseStartY: clientY,
+      viewStartX: this.state.scrollLeft,
+      viewStartY :this.state.scrollTop,
+      dragging: true,
+    });
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+  onMouseMove = (evt: any) => {
+    if (!this.state.dragging) {
+      return false;
+    }
+    const {
+      mouseStartX,
+      mouseStartY,
+      viewStartX,
+      viewStartY,
+    } = this.state;
+    let x = viewStartX + (mouseStartX - evt.clientX);
+    x = x >= 0 ? x : 0;
+    let y = viewStartY + (mouseStartY - evt.clientY);
+    y = y >= 0 ? y : 0;
+    this.setState({
+      scrollTop: y,
+      scrollLeft: x,
+    });
+    this.refBody.current.scrollLeft = x;
+    this.refBody.current.scrollTop = y;
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+  onMouseUp = (evt: any) => {
+    this.setState({
+      dragging: false,
+    });
+    evt.preventDefault();
+    evt.stopPropagation();
   }
 
   render() {
@@ -141,7 +195,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       "group:start": function(group_name: string){
         body_events.push(
           '<div class="groups">',
-            '<label>', group_name, '</label>',
+            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group_name, '</label>',
             '<ol>'
         );
       },
@@ -194,9 +248,23 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     return (
       <div className="markline">
         <header dangerouslySetInnerHTML={{ __html: data.title || ''}}></header>
-        <section>
-          <div className="dates" ref={this.refDates} style={{ left: -this.state.scrollLeft }} dangerouslySetInnerHTML={{ __html: head_dates.join('') }}></div>
-          <div className="events" id="events" onScroll={this.onScroll} dangerouslySetInnerHTML={{ __html: body_events.join('') }}></div>
+        <section
+          onMouseDownCapture={this.onMouseDown}
+          onMouseMoveCapture={this.onMouseMove}
+          onMouseUpCapture={this.onMouseUp}
+        >
+          <div 
+            className="dates"
+            ref={this.refDates}
+            style={{ left: -this.state.scrollLeft }}
+            dangerouslySetInnerHTML={{ __html: head_dates.join('') }}
+          />
+          <div
+            className="events"
+            ref={this.refBody}
+            onScroll={this.onScroll}
+            dangerouslySetInnerHTML={{ __html: body_events.join('') }}
+          />
         </section>
         <footer>
           <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
@@ -205,7 +273,6 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     )
   }
 }
-
 
 // @param {Number} distance, two date distance milliseconds.
 // @return {Number} line width.
@@ -217,56 +284,3 @@ function calcLength(distance: number){
 function isFunction(object: any): boolean {
   return Object.prototype.toString.call(object) === "[object Function]";
 }
-
-
-// Markline.prototype.render = function() {
-// 
-// 
-//   const me = this;
-// 
-//   this._element.addClass("markline");
-//   this.title = $(['<header>', this.title, '</header>'].join("")).appendTo(this._element);
-//   this.footer = $(['<footer><a class="forkme" href="https://github.com/hotoo/markline" target="_blank">Markline</a></footer>'].join("")).appendTo(this._element);
-//   this.container = $('<section></section>').appendTo(this._element);
-//   this.header = $(head_dates.join("")).appendTo(this.container);
-//   this.body = $(body_events.join("")).appendTo(this.container);
-
-  // this.body.on("scroll", function(evt){
-  //   const that = $(this);
-
-  //   //var head = $(".dates", me._element);
-  //   //head.css({"left": -that.scrollLeft()});
-  //   me.header.css({"left": -me.body.scrollLeft()});
-
-  //   const groups = $(".groups > label", me._element);
-  //   groups.css({"left": that.scrollLeft() - 90});
-  // });
-
-  // // scroll via mouse drag and drop.
-  // let startingMousePostition;
-  // let startingPagePosition;
-  // this.container.on('mousedown', function(event){
-  //   startingMousePostition = {
-  //     x: event.clientX,
-  //     y: event.clientY
-  //   };
-  //   startingPagePosition = {
-  //     x: me.body.scrollLeft(),
-  //     y: me.body.scrollTop()
-  //   };
-
-  //   me.container.on('mousemove', drag);
-  // });
-  // this.container.on('mouseup', function(event){
-  //   me.container.off('mousemove', drag);
-  // });
-
-  // function drag(event){
-  //   event.preventDefault();
-  //   const x = startingPagePosition.x + (startingMousePostition.x - event.clientX);
-  //   const y = startingPagePosition.y + (startingMousePostition.y - event.clientY);
-  //   me.body.scrollLeft(x);
-  //   me.body.scrollTop(y);
-  // }
-// };
-
