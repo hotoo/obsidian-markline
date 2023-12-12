@@ -1,75 +1,68 @@
 /*
-
 This CSS file will be included with your plugin, and
 available in the app when your plugin is enabled.
 
 If your plugin does not need CSS, delete this file.
-
 */
-
-
 .markline {
   background: #333;
   color: #ccc;
   position: relative;
-  font-family: Avenir, 'Helvetica Neue', 'Microsoft Yahei', 'Hiragino Sans GB', 'Microsoft Sans Serif', 'WenQuanYi Micro Hei', Helvetica, Arial, sans-serif;
+  font-family: Avenir, "Helvetica Neue", "Microsoft Yahei", "Hiragino Sans GB", "Microsoft Sans Serif", "WenQuanYi Micro Hei", Helvetica, Arial, sans-serif;
   font-size: 13px;
-
   min-width: 500px;
   min-height: 400px;
   height: 100%;
-  -moz-border-radius:2px; -khtml-border-radius:2px; -webkit-border-radius:2px; border-radius:2px;
+  -moz-border-radius: 2px;
+  -khtml-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
   overflow: hidden;
-
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-
   cursor: move;
-	cursor: -webkit-grab;
-	cursor: -moz-grab;
-	cursor: grab;
-
-  -webkit-transform:translateZ(0);
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  cursor: grab;
+  -webkit-transform: translateZ(0);
+  zoom: 1;
 }
-
-.markline > header ,
+.markline > header,
 .markline > footer {
   position: absolute;
   left: 0;
   bottom: 0;
   margin: 0 0 10px 30px;
   font-size: 2em;
-  color: rgba(153,153,153,0.3); /* #999 */
-  white-space:nowrap;
+  color: rgba(153, 153, 153, 0.3); /* #999 */
+  white-space: nowrap;
   z-index: 99;
   cursor: default;
-
   transition: color 0.3s ease-in-out;
   -webkit-transition: color 0.3s ease-in-out;
   -moz-transition: color 0.3s ease-in-out;
   -o-transition: color 0.3s ease-in-out;
 }
-.markline > header:hover ,
+.markline > header:hover,
 .markline > footer:hover {
   color: #999;
 }
-.markline > header > a ,
+.markline > header:hover > a,
+.markline > footer:hover > a {
+  color: #6EA3D0;
+}
+.markline > header > a,
 .markline > footer > a {
-  color: rgba(110,163,208,0.3);/*#6EA3D0;*/
+  color: rgba(110, 163, 208, 0.3); /*#6EA3D0;*/
   text-decoration: none;
-
   transition: color 0.3s ease-in-out;
   -webkit-transition: color 0.3s ease-in-out;
   -moz-transition: color 0.3s ease-in-out;
   -o-transition: color 0.3s ease-in-out;
 }
-.markline > header > a:hover ,
+.markline > header > a:hover,
 .markline > footer > a:hover {
-  border-bottom: 1px solid rgba(110,163,208,0.5); /* #6EA3D0 */
-}
-.markline > header:hover > a ,
-.markline > footer:hover > a {
-  color: #6EA3D0;
+  border-bottom: 1px solid rgba(110, 163, 208, 0.5); /* #6EA3D0 */
 }
 .markline > footer {
   left: auto;
@@ -80,31 +73,32 @@ If your plugin does not need CSS, delete this file.
   margin-left: 10px;
   font-size: 14px;
 }
-
 .markline > section {
   position: absolute;
   display: block;
   width: 100%;
   height: 100%;
   overflow: hidden;
-
-  -webkit-transform:translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 .markline > section > .dates {
   position: absolute;
   top: 0;
   left: 0;
-  white-space:nowrap;
+  white-space: nowrap;
   height: 100%;
 }
-.markline > section > .dates > ol,
-.markline > section > .dates > ol > li {
+.markline > section > .dates > ol {
   list-style: none;
   margin: 0;
   padding: 0;
   height: 100%;
 }
 .markline > section > .dates > ol > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
   display: inline-block;
   box-sizing: border-box;
   width: 100px;
@@ -114,18 +108,17 @@ If your plugin does not need CSS, delete this file.
 .markline > section > .dates > ol > li:first-child {
   margin-left: 30px;
 }
-.markline > section > .dates > ol > li > label,
+.markline > section > .dates > ol > li > label {
+  position: relative;
+  background-color: #333;
+  display: block;
+  z-index: 103; /* Fixed #10, RENDERING BUGS IN Google Chrome */
+}
 .markline > section > .groups > ol > li > label {
   background-color: #333;
   display: block;
   z-index: 103; /* Fixed #10, RENDERING BUGS IN Google Chrome */
 }
-.markline > section > .dates > ol > li > label {
-  position: relative;
-}
-
-
-/* events */
 .markline > section > .events {
   position: absolute;
   top: 0;
@@ -134,25 +127,91 @@ If your plugin does not need CSS, delete this file.
   height: 100%;
   overflow: auto;
 }
-.markline > section > .events ol,
-.markline > section > .events ol > li {
+.markline > section > .events ol {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .markline > section > .events ol > li {
-  white-space: nowrap;
-  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-.markline > section > .events > .groups > ol > li {
-  margin: 2px 0;
-}
-
 .markline > section > .events > .groups {
   margin: 10px 0;
   padding: 10px 0;
   /*border-top: 1px dashed rgba(255,255,255,0.2);*/
   position: relative;
+}
+.markline > section > .events > .groups > ol > li {
+  margin: 2px 0;
+}
+.markline > section > .events > .groups > ol > li > div {
+  display: inline-block;
+  background: rgba(51, 51, 51, 0.4);
+  position: relative;
+  padding-right: 20px;
+  z-index: 101;
+  -moz-border-radius: 8px;
+  -khtml-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  border-radius: 8px;
+}
+.markline > section > .events > .groups > ol > li > div > ol {
+  white-space: nowrap;
+  border: 0;
+  background-color: #999;
+  height: 8px;
+  -moz-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 5px;
+  display: inline-block;
+  position: relative;
+}
+.markline > section > .events > .groups > ol > li > div > ol > li {
+  width: 8px;
+  height: 8px;
+  font-size: 0;
+  border: 0 none;
+  background-color: #ccc;
+  -moz-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  text-indent: -10000px;
+  cursor: pointer;
+}
+.markline > section > .events > .groups > ol > li > div > ol > li:hover {
+  background-color: #333;
+  border: 1px solid #ccc;
+  margin-top: -1px;
+  margin-left: -1px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.markline > section > .events > .groups > ol > li > div > time,
+.markline > section > .events > .groups > ol > li > div > label {
+  padding: 2px 5px;
+}
+.markline > section > .events > .groups > ol > li > div:hover > ol {
+  background-color: #ccc;
+}
+.markline > section > .events > .groups > ol > li > div:hover > ol > li {
+  background-color: #fff;
+  z-index: 100;
+}
+.markline > section > .events > .groups > ol > li > div:hover > time,
+.markline > section > .events > .groups > ol > li > div:hover > label {
+  color: #fff;
 }
 .markline > section > .events > .groups > label {
   position: absolute;
@@ -166,64 +225,6 @@ If your plugin does not need CSS, delete this file.
   z-index: 102;
   background-color: #333;
 }
-
-.markline > section > .events > .groups > ol > li > div {
-  display: inline-block;
-  background: rgba(51,51,51,0.4);
-  position: relative;
-  padding-right: 20px;
-  z-index: 101;
-  -moz-border-radius:8px; -khtml-border-radius:8px; -webkit-border-radius:8px; border-radius:8px;
-}
-
-.markline > section > .events > .groups > ol > li > div > ol {
-  white-space: nowrap;
-  border: 0;
-  background-color: #999;
-  height: 8px;
-  -moz-border-radius:4px; -khtml-border-radius:4px; -webkit-border-radius:4px; border-radius:4px;
-  vertical-align: middle;
-  margin-right: 5px;
-  display: inline-block;
-  position: relative;
-}
-.markline > section > .events > .groups > ol > li > div:hover > ol {
-  background-color: #ccc;
-}
-.markline > section > .events > .groups > ol > li > div > time ,
-.markline > section > .events > .groups > ol > li > div > label {
-  padding: 2px 5px;
-}
-.markline > section > .events > .groups > ol > li > div:hover > time,
-.markline > section > .events > .groups > ol > li > div:hover > label {
-  color: #fff;
-}
-.markline > section > .events > .groups > ol > li > div > ol > li {
-  width: 8px;
-  height: 8px;
-  font-size: 0;
-  border: 0 none;
-  background-color: #ccc;
-  -moz-border-radius:4px; -khtml-border-radius:4px; -webkit-border-radius:4px; border-radius:4px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  text-indent: -10000px;
-  cursor: pointer;
-}
-.markline > section > .events > .groups > ol > li > div:hover > ol > li {
-  background-color: #fff;
-  z-index: 100;
-}
-.markline > section > .events > .groups > ol > li > div > ol > li:hover {
-  background-color: #333;
-  border:1px solid #ccc;
-  margin-top: -1px;
-  margin-left: -1px;
-  -moz-border-radius:5px; -khtml-border-radius:5px; -webkit-border-radius:5px; border-radius:5px;
-}
-
 .markline > section > .events del {
   font-style: italic;
   color: #999;
@@ -256,27 +257,23 @@ If your plugin does not need CSS, delete this file.
   text-indent: 1000px;
   overflow: hidden;
 }
-
-.markline:after{content:"\0020"; display:block; height:0; clear:both;}
-.markline{zoom:1;}
-.clearfix:after{content:"\0020"; display:block; height:0; clear:both;}
-.clearfix{zoom:1;}
-
-.markline > section .tags {
+.markline .tags {
   height: 20px;
   margin: 0 5px;
   padding: 0 5px 0 15px;
   display: inline-block;
-  -moz-border-radius:100% 3px 3px 100%;
-  -khtml-border-radius:100% 3px 3px 100%;
-  -webkit-border-top-left-radius:100%; -webkit-border-top-right-radius:3px;
-  -webkit-border-bottom-right-radius:3px; -webkit-border-bottom-left-radius:100%;
-  border-radius:100% 3px 3px 100%;
+  -moz-border-radius: 100% 3px 3px 100%;
+  -khtml-border-radius: 100% 3px 3px 100%;
+  -webkit-border-top-left-radius: 100%;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 100%;
+  border-radius: 100% 3px 3px 100%;
   position: relative;
   color: #eee;
   background-color: #96f;
 }
-.markline > section .tags:before {
+.markline .tags:before {
   position: absolute;
   content: "";
   left: 5px;
@@ -285,7 +282,16 @@ If your plugin does not need CSS, delete this file.
   width: 6px;
   height: 6px;
   background: #eee;
-  -moz-border-radius:100%; -khtml-border-radius:100%; -webkit-border-radius:100%; border-radius:100%;
+  -moz-border-radius: 100%;
+  -khtml-border-radius: 100%;
+  -webkit-border-radius: 100%;
+  border-radius: 100%;
+}
+.markline:after {
+  content: " ";
+  display: block;
+  height: 0;
+  clear: both;
 }
 
 /* light theme */
@@ -293,40 +299,52 @@ If your plugin does not need CSS, delete this file.
   background-color: #ecf0f1;
   color: #666;
 }
-.markline.markline-light>section>.dates>ol>li>label {
+
+.markline.markline-light > section > .dates > ol > li > label {
   background-color: #ecf0f1;
 }
+
 .markline.markline-light > section > .dates > ol > li {
   border-left: 1px dashed rgba(0, 0, 0, 0.2);
 }
-.markline.markline-light>section>.events>.groups>ol>li>div {
+
+.markline.markline-light > section > .events > .groups > ol > li > div {
   background-color: transparent;
 }
-.markline.markline-light>section>.events>.groups>label {
+
+.markline.markline-light > section > .events > .groups > label {
   background-color: #ecf0f1;
 }
-.markline.markline-light>section>.events>.groups>ol>li>div>ol {
+
+.markline.markline-light > section > .events > .groups > ol > li > div > ol {
   background-color: #1abc9c;
 }
-.markline.markline-light>section>.events>.groups>ol>li>div>time {
+
+.markline.markline-light > section > .events > .groups > ol > li > div > time {
   color: #888;
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > time,
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > label {
-  color: #000
+  color: #000;
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > label a {
   color: #8EA3F0;
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
   color: rgba(0, 0, 0, 0.5);
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div:hover > ol > li {
   background-color: #3fdc9c;
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div > ol > li {
   background-color: #3fdc9c;
 }
+
 .markline.markline-light > section > .events > .groups > ol > li > div > ol > li:hover {
   background-color: #1abc9c;
   border-color: #fff;
