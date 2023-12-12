@@ -81,6 +81,7 @@ function parseDateEnd(date: string): Date {
 // TODO: meta types.
 function parseMarkdown(markdown: string, meta: any){
   const RE_IMAGE = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  const RE_INTERNAL_IMAGE = /!\[\[([^\]|]*)(?:\|([^\]]+))?\]\]/g;
   const RE_LINK = /\[([^\]]*)\]\(([^)]+)\)/g;
   const RE_INTERNAL_LINK = /\[\[([^\]|]*)(?:\|([^\]]+))?\]\]/g;
   const RE_STRONG = /(\*\*|__)(.*?)\1/g;
@@ -92,6 +93,9 @@ function parseMarkdown(markdown: string, meta: any){
   const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
 
   let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank"><i style="background-image:url($2)" /></a>');
+  html = html.replace(RE_INTERNAL_IMAGE, function($0, $1, $2) {
+    return `<a href="obsidian://open?file=${encodeURIComponent($1)}" class="img"><span>${$2 || $1}</span></a>`;
+  });
   html = html.replace(RE_LINK, '<a href="$2" target="_blank">$1</a>');
   html = html.replace(RE_INTERNAL_LINK, function($0, $1, $2) {
     return `<a href="obsidian://open?file=${encodeURIComponent($1)}">${$2 || $1}</a>`;
