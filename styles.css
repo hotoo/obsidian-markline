@@ -257,6 +257,12 @@ If your plugin does not need CSS, delete this file.
   text-indent: 1000px;
   overflow: hidden;
 }
+.markline > section > .events a.img i {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  background-size: cover;
+}
 .markline .tags {
   height: 20px;
   margin: 0 5px;

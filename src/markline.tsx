@@ -90,7 +90,7 @@ function parseMarkdown(markdown: string, meta: any){
   const RE_MENTION_PLACEHOLDER = /\{@mention\}/ig;
   const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
 
-  let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank">$1</a>');
+  let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank"><i style="background-image:url($2)" /></a>');
   html = html.replace(RE_LINK, '<a href="$2" target="_blank">$1</a>');
   html = html.replace(RE_STRONG, '<strong>$2</strong>');
   html = html.replace(RE_EM, '<em>$2</em>');

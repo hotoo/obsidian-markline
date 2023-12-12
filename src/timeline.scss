@@ -282,6 +282,13 @@ If your plugin does not need CSS, delete this file.
         vertical-align: middle;
         text-indent: 1000px;
         overflow: hidden;
+
+        i {
+          width: 100%;
+          height: 100%;
+          display: inline-block;
+          background-size: cover;
+        }
       }
     }
   }
