@@ -1,23 +1,9 @@
 import * as React from "react";
+import type { IEvent, IProcessHandlers } from './types';
 
 // const offset_top = 20; // offset top for date header.
 const offset_left = 30; // offset left for group name.
 const year_width = 100; // width per date (year).
-
-export interface IEvent {
-  name: string;
-  date: string;
-  'date-start': Date;
-  'date-end': Date;
-}
-
-interface IProcessHandlers {
-  'group:start'?: (group_name: string) => void;
-  'group:stop'?: (group_name: string) => void;
-  'line:start'?: (line: IEvent) => void;
-  'line:stop'?: (line: IEvent) => void;
-  event?: (event: IEvent) => void;
-}
 
 interface MarklineData {
   title: string;

@@ -114,19 +114,29 @@ Now we support meta data:
 
   `{@mention}` is placeholder for mention name.
 
-* `hashtag`: custom hashtag styles.
+* hashtag and colors: direct use `#FF0000` or hashtag custom tags styles.
 
   ```md
   # #HashTag Demo
 
-  - hashtag:
-    - tag-name: text-color, background-color
-    - life: yellow, #f00
-    - job: rgb(255,255,255), rgba(255,0,0,0.5)
+  - tags:
+    - #tag-name: background-color, text-color
+    - #life: yellow, #f00
+    - #job: rgb(255,255,255), rgba(255,0,0,0.5)
+    - #some-tag: red
 
   ----
 
   - 2014 this is my #life
+  - 2023 this line color is red #f00
+  
+  ## Group #F00
+  - 2023 all events in this group is red.
+  - 2023 red line.
+
+  ## Group #F00 #0F0
+  - 2023 all events in this group is red bar and green text.
+  - 2023 red bar and green text.
   ```
 
 following meta data support come soon.
@@ -166,13 +176,15 @@ for anonymous group.
 ### Link
 
 ```markdown
-* 2014 this is a  [link](url)
+* 2014 this is a [link](url)
+* 2014 this is a [[inner link]]
 ```
 
 ### Image
 
 ```markdown
 * 2014 this is an image: ![alt](image-url)
+* 2014 this is an internal image: ![[image file]]
 ```
 
 ### Strong
