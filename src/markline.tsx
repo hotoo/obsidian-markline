@@ -100,9 +100,15 @@ function parseMarkdown(markdown: string, meta: any): IParsedMarkdown {
   const RE_MENTION_PLACEHOLDER = /\{@mention\}/ig;
   const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
 
-  let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank"><i style="background-image:url($2)" /></a>');
+  let html = markdown.replace(RE_IMAGE, function($0, $1, $2) {
+    const url = $2 || $1;
+    const style = /^https?:\/\//.test(url) && /\.(?:png|gif|jpg|jpeg|webp)$/i.test(url) ? `style="background-image:url(${$2})"` : '';
+    return `<a href="${url}" class="img" title="${$1}" target="_blank" ${style}>${$1}</a>`;
+  });
   html = html.replace(RE_INTERNAL_IMAGE, function($0, $1, $2) {
-    return `<a href="obsidian://open?file=${encodeURIComponent($1)}" class="img"><span>${$2 || $1}</span></a>`;
+    const url = $2 || $1;
+    const style = /^https?:\/\//.test(url) && /\.(?:png|gif|jpg|jpeg|webp)$/i.test(url) ? `style="background-image:url(app://local/${$2})"` : '';
+    return `<a href="obsidian://open?file=${encodeURIComponent($1)}" class="img" ${style}><span>${$2 || $1}</span></a>`;
   });
   html = html.replace(RE_LINK, '<a href="$2" target="_blank">$1</a>');
   html = html.replace(RE_INTERNAL_LINK, function($0, $1, $2) {

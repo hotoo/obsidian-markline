@@ -283,14 +283,12 @@ If your plugin does not need CSS, delete this file.
         text-indent: 20px;
         white-space: nowrap;
         margin: 2px 3px 0;
-
-        i {
-          width: 100%;
-          height: 100%;
-          display: inline-block;
-          background-size: cover;
-          background-color: red;
-        }
+      }
+      img {
+        width: 12px;
+        height: 12px;
+        align-items: center;
+        align-content: center;
       }
     }
   }
