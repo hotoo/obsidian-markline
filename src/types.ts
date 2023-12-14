@@ -7,15 +7,15 @@ export interface MarklinePluginSettings {
 export interface IMarklineData {
 	title: string; // 图表标题，显示在左下角。
 	meta: IMetadata;
-	body: Record<string, any>; // TODO: 转换成数组形式
+	body: IGroup[]; // TODO: 转换成数组形式
 }
 
 export interface IGroup {
-	name: string;
-	tags: string[];
-}
-export interface ILine {
-	events: IEvent[]
+	html: string;
+	tags?: string[];
+	'background-color'?: string;
+	'text-color'?: string;
+	events: ILine[];
 }
 export interface IEvent {
   name: string;
@@ -27,18 +27,15 @@ export interface IEvent {
 	'text-color'?: string;
 }
 
-export interface MarklineData {
-	[group_name: string]: {
-		lines: ILine[];
-		tags: ITag[];
-	}
+export interface ILine extends IEvent {
+	events: IEvent[]
 }
 
 export interface IProcessHandlers {
-  'group:start'?: (group_name: string) => void;
-  'group:stop'?: (group_name: string) => void;
-  'line:start'?: (line: IEvent) => void;
-  'line:stop'?: (line: IEvent) => void;
+  'group:start'?: (group: IGroup) => void;
+  'group:stop'?: (group: IGroup) => void;
+  'line:start'?: (line: ILine) => void;
+  'line:stop'?: (line: ILine) => void;
   event?: (event: IEvent) => void;
 }
 

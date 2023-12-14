@@ -1,17 +1,12 @@
 import * as React from "react";
-import type { IEvent, IProcessHandlers } from './types';
+import type { IEvent, IGroup, IMarklineData, IProcessHandlers } from './types';
 
 // const offset_top = 20; // offset top for date header.
 const offset_left = 30; // offset left for group name.
 const year_width = 100; // width per date (year).
 
-interface MarklineData {
-  title: string;
-  meta: Record<string, any>;
-  body: Record<string, any>;
-}
 interface TimelineProps {
-  data: MarklineData;
+  data: IMarklineData;
 }
 interface TimelineState {
   scrollTop: number;
@@ -42,17 +37,17 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     };
   }
 
-  _process (data: Record<string, any>, handlers: IProcessHandlers) {
+  _process (data: IGroup[], handlers: IProcessHandlers) {
     if (!handlers) {return;}
 
-    for (const group_name in data) {
-      if (!data.hasOwnProperty(group_name)) {continue;}
+    for (let g = 0, gl = data.length; g < gl; g++) {
+      const group = data[g];
 
-      const lines = data[group_name];
+      const lines = group.events;
 
       if (isFunction(handlers["group:start"])) {
         // @ts-ignore
-        handlers["group:start"].call(this, group_name, lines);
+        handlers["group:start"].call(this, group, lines);
       }
 
       for(let i = 0, l = lines.length; i < l; i++) {
@@ -80,7 +75,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
 
       if (isFunction(handlers["group:stop"])) {
         // @ts-ignore
-        handlers["group:stop"].call(this, group_name, lines);
+        handlers["group:stop"].call(this, group, lines);
       }
     }
   }
@@ -178,10 +173,10 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     let current_line_offset_left = 0;
 
     this._process(data.body, {
-      "group:start": function(group_name: string){
+      "group:start": function(group: IGroup){
         body_events.push(
           '<div class="groups">',
-            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group_name, '</label>',
+            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group.html, '</label>',
             '<ol>'
         );
       },

@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Timeline } from "./timeline";
-import type { IEvent } from './types';
+import type { IGroup, ILine, IMarklineData } from './types';
 
 const DEFAULT_MENTION_URL = "https://github.com/{@mention}";
 
-function isString (object: any){
+function isString (object: any) {
   return Object.prototype.toString.call(object) === "[object String]";
 }
 
@@ -158,14 +158,10 @@ function parseMarkdown(markdown: string, meta: any): IParsedMarkdown {
 // parse markline.
 function parse(markdown: string){
   const lines = markdown.split(/\r\n|\r|\n/);
-  const data: {
-    title: string;
-    meta: Record<string, any>;
-    body: Record<string, any>;
-  } = {
+  const data: IMarklineData = {
     title: "",
     meta: {},
-    body: {},
+    body: [],
   };
 
   const re_title = /^#\s+(.*)$/;
@@ -174,21 +170,29 @@ function parse(markdown: string){
   const re_hr = /^-{2,}$/;
   const re_group = /^##{1,5}\s+(.*)$/;
   const re_line  = /^[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
-  const re_event  = /^\s+[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
+  const re_sub_event  = /^\s+[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
 
-  let current_group: IParsedMarkdown = { html:'' };
-  let current_line;
+  let current_group: IGroup = { html:'', events: [] };
+  let current_line: ILine | undefined;
   let inline = false; // into group, line, or event body.
   let inmeta = false;
   let current_meta_name = '';
   let current_meta_value;
 
-  function addGroup(group_name: string){
-    while (data.body.hasOwnProperty(group_name)) {
-      group_name += " ";
-    }
-    current_group = parseMarkdown(group_name, data.meta);
-    data.body[current_group.html] = [];
+  function addGroup(group_name: string): void {
+    // 防止重复分组名称，对于数组形式来说不需要了。
+    // while (data.body.contains((item: IGroup) => item.name === group_name)) {
+    //   group_name += " ";
+    // }
+    const parsed = parseMarkdown(group_name, data.meta);
+    current_group = {
+      html: parsed.html,
+      tags: parsed.tags,
+      'background-color': parsed.backgroundColor,
+      'text-color': parsed.textColor,
+      events: [],
+    };
+    data.body.push(current_group);
 
     inline = true;
   }
@@ -201,14 +205,16 @@ function parse(markdown: string){
       const title = parseMarkdown(match[1], data.meta);
       data.title = title.html;
     } else if (!inline && (match = text_line.match(re_meta))) {
+      // parse metadata.
       const meta_name = match[1];
       const meta_value = match[2];
       data.meta[meta_name] = meta_value;
       current_meta_name = meta_name;
       current_meta_value = meta_value;
       inmeta = true;
-    } else if (!inline && (match = text_line.match(re_submeta))) {
-
+    } else if (inmeta && (match = text_line.match(re_submeta))) {
+      // parse sub-metadata.
+      // first time parse block sub-metadata, build an object.
       if (isString(data.meta[current_meta_name])) {
         data.meta[current_meta_name] = {
           "default": current_meta_value
@@ -218,21 +224,19 @@ function parse(markdown: string){
       const meta_name = match[1];
       const meta_value = match[2];
       data.meta[current_meta_name][meta_name] = meta_value;
-      // eslint-disable-next-line
       inmeta = true;
     } else if (text_line.match(re_hr)) {
       addGroup("");
     // eslint-disable-next-line no-cond-assign
     } else if (match = text_line.match(re_group)) {
-      // PARSE GRPUPS.
-      const group_name = match[1];
-      addGroup(group_name);
+      // parse group.
+      addGroup(match[1]);
     // eslint-disable-next-line no-cond-assign
     } else if (match = text_line.match(re_line)) {
-      // PARSE EVENT LINES.
-      if (!data.body[current_group.html]){
-        data.body[current_group.html] = [];
-      }
+      // parse event line.
+      // if (!data.body[current_group.html]){
+      //   data.body[current_group.html] = [];
+      // }
 
       const line_start = match[2];
       const line_stop = match[3] === undefined ? line_start : match[3];
@@ -245,15 +249,16 @@ function parse(markdown: string){
         "name": parsed.html,
         "background-color": parsed.backgroundColor,
         "text-color": parsed.textColor,
-        "events": [] as IEvent[],
+        "events": [],
       };
-      data.body[current_group.html].push(data_line);
+      // data.body[current_group.html].push(data_line);
+      current_group.events.push(data_line);
       current_line = data_line;
 
       inline = true;
     // eslint-disable-next-line no-cond-assign
-    } else if (match = text_line.match(re_event)) {
-      // PARSE SUB EVENT POINTS.
+    } else if (inline && (match = text_line.match(re_sub_event))) {
+      // parse sub event.
 
       const date = match[1];
       const date_start = match[2];
