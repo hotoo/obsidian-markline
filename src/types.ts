@@ -4,6 +4,12 @@ export interface MarklinePluginSettings {
 	theme: 'light' | 'dark';
 }
 
+export interface IMarklineData {
+	title: string; // 图表标题，显示在左下角。
+	meta: IMetadata;
+	body: Record<string, any>; // TODO: 转换成数组形式
+}
+
 export interface IGroup {
 	name: string;
 	tags: string[];
@@ -40,6 +46,9 @@ export interface IMetadata {
 	author?: string;
 	mention?: string;
 	tags?: ITag[];
+	age?: 'show' | 'hide';
+	theme?: 'dark' | 'light';
+	[meta: string]: any;
 }
 
 export interface ITags {
