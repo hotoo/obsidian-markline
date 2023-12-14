@@ -174,8 +174,9 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
 
     this._process(data.body, {
       "group:start": function(group: IGroup){
+        const style = ` style="background-color: ${group["background-color"]}; color: ${group["text-color"]}"`;
         body_events.push(
-          '<div class="groups">',
+          `<div class="groups" ${style}>`,
             '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group.html, '</label>',
             '<ol>'
         );
