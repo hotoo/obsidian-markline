@@ -21,6 +21,7 @@ interface TimelineState {
 export class Timeline extends React.Component<TimelineProps, TimelineState> {
   refDates: any;
   refBody: any;
+  max_width: number;
 
   constructor(props: TimelineProps) {
     super(props);
@@ -111,7 +112,10 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       viewStartY,
     } = this.state;
     let x = viewStartX + (mouseStartX - evt.clientX);
-    x = x >= 0 ? x : 0;
+    if (x < 0) { x = 0; }
+    // TODO: - container_width;
+    if (x > this.max_width) { x = this.max_width; }
+
     let y = viewStartY + (mouseStartY - evt.clientY);
     y = y >= 0 ? y : 0;
     this.setState({
@@ -155,6 +159,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     const first_year = min_date.getFullYear();
     const last_year = max_date.getFullYear() + 2;
     const years = last_year - first_year + 3;
+    this.max_width = years * year_width + 90;
 
     min_date = new Date(first_year, 0, 1);
 
@@ -175,7 +180,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       "group:start": function(group: IGroup){
         const style = `background-color: ${group["background-color"]}; color: ${group["text-color"]}`;
         body_events.push(
-          `<div class="groups" style="width:${years * year_width + 90}px; ${style}">`,
+          `<div class="groups" style="width:${this.max_width}px; ${style}">`,
             '<label style="left: ', String(this.state.scrollLeft - 90), 'px; background-color: transparent">', group.html, '</label>',
             '<ol>'
         );
