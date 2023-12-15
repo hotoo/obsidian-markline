@@ -134,8 +134,8 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
   render() {
     const { data } = this.props;
 
-    let min_date: Date;
-    let max_date: Date;
+    let min_date = new Date();
+    let max_date = new Date();
 
     this._process(data.body, {
       "line:start": function(line: IEvent){
@@ -152,10 +152,9 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       }
     });
 
-    // @ts-ignore
     const first_year = min_date.getFullYear();
-    // @ts-ignore
     const last_year = max_date.getFullYear() + 2;
+    const years = last_year - first_year + 3;
 
     min_date = new Date(first_year, 0, 1);
 
@@ -174,10 +173,10 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
 
     this._process(data.body, {
       "group:start": function(group: IGroup){
-        const style = ` style="background-color: ${group["background-color"]}; color: ${group["text-color"]}"`;
+        const style = `background-color: ${group["background-color"]}; color: ${group["text-color"]}`;
         body_events.push(
-          `<div class="groups" ${style}>`,
-            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group.html, '</label>',
+          `<div class="groups" style="width:${years * year_width + 90}px; ${style}">`,
+            '<label style="left: ', String(this.state.scrollLeft - 90), 'px; background-color: transparent">', group.html, '</label>',
             '<ol>'
         );
       },
@@ -201,9 +200,9 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
         }
 
         body_events.push(
-          '<li style="margin-left:', String(line_start), 'px;">',
+          '<li style="margin-left:', String(line_start), 'px; color:', line["text-color"] || '', '">',
             '<div>',
-              '<ol style="width:', String(line_length), 'px;">');
+              '<ol style="width:', String(line_length), 'px; background-color:', line["background-color"] || '', ';">');
       },
 
       'line:stop': function(line: IEvent){

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Timeline } from "./timeline";
-import type { IGroup, ILine, IMarklineData } from './types';
+import type { IGroup, ILine, IMarklineData, IMetadata } from './types';
 
 const DEFAULT_MENTION_URL = "https://github.com/{@mention}";
 
@@ -87,7 +87,7 @@ export interface IParsedMarkdown {
 // @param {String} markdown.
 // @return {String} html tags.
 // TODO: meta types.
-function parseMarkdown(markdown: string, meta: any): IParsedMarkdown {
+function parseMarkdown(markdown: string, meta: IMetadata): IParsedMarkdown {
   const RE_IMAGE = /!\[([^\]]*)\]\(([^)]+)\)/g;
   const RE_INTERNAL_IMAGE = /!\[\[([^\]|]*)(?:\|([^\]]+))?\]\]/g;
   const RE_LINK = /\[([^\]]*)\]\(([^)]+)\)/g;
@@ -98,7 +98,7 @@ function parseMarkdown(markdown: string, meta: any): IParsedMarkdown {
   const RE_CODE = /`([^`]+)`/g
   const RE_MENTION = /(^|[^a-zA-Z0-9])@([^\s\t,()[\]{}]+)/g;
   const RE_MENTION_PLACEHOLDER = /\{@mention\}/ig;
-  const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
+  const RE_HASHTAG = /(?:^|[\s\t])(#([^\s\t]+))/g;
 
   let html = markdown.replace(RE_IMAGE, function($0, $1, $2) {
     const url = $2 || $1;
@@ -131,18 +131,26 @@ function parseMarkdown(markdown: string, meta: any): IParsedMarkdown {
 
   // #hashtags:
   const tags: string[] = [];
-  let backgroundColor;
+  let backgroundColor = '';
   let textColor;
-  html = html.replace(RE_HASHTAG, function($0, $1_tag_name) {
+  html = html.replace(RE_HASHTAG, function($0, $1_hashtag, $2_tag_name) {
     const tag_colors = meta.hashtags || meta.hashtag || meta.tags || meta.tag || {};
 
-    if (tag_colors.hasOwnProperty($1_tag_name)) {
-      const tag_color = (tag_colors[$1_tag_name] || "").split(/,[\s\t]+/);
+    if (tag_colors.hasOwnProperty($2_tag_name)) {
+      // defined in metadata.
+      const tag_color = (tag_colors[$2_tag_name] || "").split(/,[\s\t]+/);
       const bg_color = tag_color[0];
       const color = tag_color[1];
-      tags.push($1_tag_name);
+      tags.push($2_tag_name);
       backgroundColor = bg_color;
       textColor = color;
+    } else {
+      // not defined in metadata.
+      if (!backgroundColor) {
+        backgroundColor = $1_hashtag;
+      } else {
+        textColor = $1_hashtag;
+      }
     }
     return '';
   });
