@@ -19,12 +19,14 @@ interface TimelineState {
 }
 
 export class Timeline extends React.Component<TimelineProps, TimelineState> {
+  refRoot: any;
   refDates: any;
   refBody: any;
   max_width: number;
 
   constructor(props: TimelineProps) {
     super(props);
+    this.refRoot = React.createRef();
     this.refDates = React.createRef();
     this.refBody = React.createRef();
     this.state = {
@@ -114,7 +116,9 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     let x = viewStartX + (mouseStartX - evt.clientX);
     if (x < 0) { x = 0; }
     // TODO: - container_width;
-    if (x > this.max_width) { x = this.max_width; }
+    const rect = this.refRoot.current?.getBoundingClientRect();
+    const { width: rootWidth = 0 } = rect;
+    if (x > this.max_width - rootWidth) { x = this.max_width - rootWidth + 90; }
 
     let y = viewStartY + (mouseStartY - evt.clientY);
     y = y >= 0 ? y : 0;
@@ -181,7 +185,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
         const style = `background-color: ${group["background-color"]}; color: ${group["text-color"]}`;
         body_events.push(
           `<div class="groups" style="width:${this.max_width}px; ${style}">`,
-            '<label style="left: ', String(this.state.scrollLeft - 90), 'px; background-color: transparent">', group.html, '</label>',
+            '<label style="left: ', String(this.state.scrollLeft - 90), `px; background-color: ${group["background-color"]}">`, group.html, '</label>',
             '<ol>'
         );
       },
@@ -232,7 +236,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     });
 
     return (
-      <div className={`markline markline-${data.meta.theme}`}>
+      <div className={`markline markline-${data.meta.theme}`} ref={this.refRoot}>
         <header dangerouslySetInnerHTML={{ __html: data.title || ''}}></header>
         <section
           onMouseDownCapture={this.onMouseDown}
