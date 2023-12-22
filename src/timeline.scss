@@ -249,6 +249,7 @@ If your plugin does not need CSS, delete this file.
           -moz-transform: rotate(-90deg);
           z-index: 102;
           background-color: #333;
+          backdrop-filter: blur(6px);
         }
       }
       del {
@@ -340,7 +341,8 @@ If your plugin does not need CSS, delete this file.
   color: #666;
 }
 .markline.markline-light>section>.dates>ol>li>label {
-  background-color: #ecf0f1;
+  background-color: rgba(236,240,241, 0.2); // #ecf0f1
+  backdrop-filter: blur(6px);
 }
 .markline.markline-light > section > .dates > ol > li {
   border-left: 1px dashed rgba(0, 0, 0, 0.2);
@@ -349,7 +351,9 @@ If your plugin does not need CSS, delete this file.
   background-color: transparent;
 }
 .markline.markline-light>section>.events>.groups>label {
-  background-color: #ecf0f1;
+  // background-color: #ecf0f1;
+  background-color: rgba(236,240,241, 0.2); // #ecf0f1
+  backdrop-filter: blur(6px);
 }
 .markline.markline-light>section>.events>.groups>ol>li>div>ol {
   background-color: #1abc9c;
