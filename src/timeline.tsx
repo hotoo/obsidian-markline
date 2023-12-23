@@ -1,31 +1,14 @@
 import * as React from "react";
+// @ts-ignore error TS7016: Could not find a declaration file for module '@hotoo/react-sanitized-html'.
+import SanitizedHTML from '@hotoo/react-sanitized-html';
+import type { IEvent, IGroup, ILine, IMarklineData, IProcessHandlers } from './types';
 
 // const offset_top = 20; // offset top for date header.
 const offset_left = 30; // offset left for group name.
 const year_width = 100; // width per date (year).
 
-export interface IEvent {
-  name: string;
-  date: string;
-  'date-start': Date;
-  'date-end': Date;
-}
-
-interface IProcessHandlers {
-  'group:start'?: (group_name: string) => void;
-  'group:stop'?: (group_name: string) => void;
-  'line:start'?: (line: IEvent) => void;
-  'line:stop'?: (line: IEvent) => void;
-  event?: (event: IEvent) => void;
-}
-
-interface MarklineData {
-  title: string;
-  meta: Record<string, any>;
-  body: Record<string, any>;
-}
 interface TimelineProps {
-  data: MarklineData;
+  data: IMarklineData;
 }
 interface TimelineState {
   scrollTop: number;
@@ -37,12 +20,114 @@ interface TimelineState {
   dragging: boolean;
 }
 
+interface GroupProps {
+  group: IGroup;
+  width: number;
+  scrollLeft: number;
+  min_date: Date;
+}
+class Group extends React.Component<GroupProps> {
+  render(): React.ReactNode {
+    const { group, width, scrollLeft, min_date } = this.props;
+    const style = {
+      'background-color': group["background-color"],
+      color: group["text-color"],
+      width: `${width}px`,
+    };
+    const styleLabel = {
+      left: `${scrollLeft - 90}px`,
+      'background-color': group["background-color"],
+    }
+    return (
+      <div className="groups" style={style}>
+        <label style={styleLabel}>{group.html}</label>
+        <ol>
+          {
+            group.events.map(line => {
+              return <Line line={line} min_date={min_date} />
+            })
+          }
+        </ol>
+      </div>
+    );
+  }
+}
+
+interface LineProps {
+  line: ILine;
+  min_date: Date;
+}
+class Line extends React.Component<LineProps> {
+  render () {
+    const { line, min_date } = this.props;
+    const date_start = line["date-start"];
+    const date_end = line["date-end"];
+    const line_start = calcLength(Number(date_start) - Number(min_date)) + offset_left;
+    const curr_offset_left = Number(date_start);
+    let line_length = calcLength(Number(date_end) - Number(date_start));
+    if (line_length < 8) {
+      line_length = 8;
+      //line_start -= 4;
+    }
+    const style = {
+      'margin-left': `${line_start}px`,
+      color: line["text-color"] || '',
+    };
+    const styleEvent = {
+      width: `${line_length}px`,
+      'background-color': line["background-color"] || '',
+    };
+
+    return (
+      <li style={style}>
+        <div>
+          <ol style={styleEvent}>
+            {
+              line.events.map(event => {
+                return <Event event={event} offset={curr_offset_left} />
+              })
+            }
+          </ol>
+          <time>{line.date}</time>
+          <label><SanitizedHTML className="inline" html={ line.name } /></label>
+        </div>
+      </li>
+    );
+  }
+}
+
+interface EventProps {
+  event: IEvent;
+  offset: number;
+}
+class Event extends React.Component<EventProps> {
+  render () {
+    const { event, offset } = this.props;
+    let event_start = calcLength(Number(event["date-start"]) - offset);
+    let event_width = calcLength(Number(event["date-end"]) - Number(event["date-start"]));
+    if (event_width < 8) {
+      event_width = 8;
+      event_start -= 4;
+    }
+    const style = {
+      left: `${event_start}px`,
+      width: `${event_width}px`,
+    }
+    return (
+      <li style={style} title={`${event.date} ${event.name}`}></li>
+    )
+  }
+}
+
 export class Timeline extends React.Component<TimelineProps, TimelineState> {
+  refRoot: any;
   refDates: any;
   refBody: any;
+  max_width: number;
 
   constructor(props: TimelineProps) {
     super(props);
+    this.refRoot = React.createRef();
     this.refDates = React.createRef();
     this.refBody = React.createRef();
     this.state = {
@@ -56,17 +141,17 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     };
   }
 
-  _process (data: Record<string, any>, handlers: IProcessHandlers) {
+  _process (data: IGroup[], handlers: IProcessHandlers) {
     if (!handlers) {return;}
 
-    for (const group_name in data) {
-      if (!data.hasOwnProperty(group_name)) {continue;}
+    for (let g = 0, gl = data.length; g < gl; g++) {
+      const group = data[g];
 
-      const lines = data[group_name];
+      const lines = group.events;
 
       if (isFunction(handlers["group:start"])) {
         // @ts-ignore
-        handlers["group:start"].call(this, group_name, lines);
+        handlers["group:start"].call(this, group, lines);
       }
 
       for(let i = 0, l = lines.length; i < l; i++) {
@@ -94,7 +179,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
 
       if (isFunction(handlers["group:stop"])) {
         // @ts-ignore
-        handlers["group:stop"].call(this, group_name, lines);
+        handlers["group:stop"].call(this, group, lines);
       }
     }
   }
@@ -130,7 +215,12 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       viewStartY,
     } = this.state;
     let x = viewStartX + (mouseStartX - evt.clientX);
-    x = x >= 0 ? x : 0;
+    if (x < 0) { x = 0; }
+    // TODO: - container_width;
+    const rect = this.refRoot.current?.getBoundingClientRect();
+    const { width: rootWidth = 0 } = rect;
+    if (x > this.max_width - rootWidth) { x = this.max_width - rootWidth + 90; }
+
     let y = viewStartY + (mouseStartY - evt.clientY);
     y = y >= 0 ? y : 0;
     this.setState({
@@ -153,8 +243,8 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
   render() {
     const { data } = this.props;
 
-    let min_date: Date;
-    let max_date: Date;
+    let min_date = new Date();
+    let max_date = new Date();
 
     this._process(data.body, {
       "line:start": function(line: IEvent){
@@ -171,83 +261,34 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
       }
     });
 
-    // @ts-ignore
     const first_year = min_date.getFullYear();
-    // @ts-ignore
     const last_year = max_date.getFullYear() + 2;
+    const years = last_year - first_year + 3;
+    this.max_width = years * year_width + 90;
 
     min_date = new Date(first_year, 0, 1);
 
     // HEAD: dates
-    const head_dates = ['<ol>'];
-
-    for(let year=first_year, age=0; year<=last_year; year++, age++){
-      head_dates.push('<li><label>', String(year), data.meta.age === "show" ? ' ('+ age +')' : '', '</label></li>')
-    }
-
-    head_dates.push('</ol>');
-
-    // BODY: events groups, and events.
-    const body_events = [''];
-    let current_line_offset_left = 0;
-
-    this._process(data.body, {
-      "group:start": function(group_name: string){
-        body_events.push(
-          '<div class="groups">',
-            '<label style="left: ', String(this.state.scrollLeft - 90), 'px">', group_name, '</label>',
-            '<ol>'
-        );
-      },
-
-      "group:stop": function(){
-        body_events.push(
-            '</ol>',
-          '</div>'
-        );
-      },
-
-      "line:start": function(line: IEvent){
-        const date_start = line["date-start"];
-        const date_end = line["date-end"];
-        const line_start = calcLength(Number(date_start) - Number(min_date)) + offset_left;
-        current_line_offset_left = Number(date_start);
-        let line_length = calcLength(Number(date_end) - Number(date_start));
-        if (line_length < 8) {
-          line_length = 8;
-          //line_start -= 4;
+    const head_dates = (
+      <ol>
+        {
+          new Array(years).fill(0).map((item, index) => {
+            const age = index;
+            const showage = data.meta.age === 'show' ? ` (${age})` : '';
+            const year = first_year + age;
+            return (
+              <li>
+                <label>{year}{showage}</label>
+              </li>
+            )
+          })
         }
-
-        body_events.push(
-          '<li style="margin-left:', String(line_start), 'px;">',
-            '<div>',
-              '<ol style="width:', String(line_length), 'px;">');
-      },
-
-      'line:stop': function(line: IEvent){
-        body_events.push(
-              '</ol>',
-              '<time>', line.date, '</time>',
-              '<label>', line.name, '</label>',
-            '</div>',
-          '</li>'
-        );
-      },
-
-      "event": function(event){
-        let event_start = calcLength(Number(event["date-start"]) - current_line_offset_left);
-        let event_width = calcLength(Number(event["date-end"]) - Number(event["date-start"]));
-        if (event_width < 8) {
-          event_width = 8;
-          event_start -= 4;
-        }
-        body_events.push('<li style="left:', String(event_start), 'px;width:', String(event_width), 'px" title="', event.date, ' ', event.name, '"></li>');
-      }
-    });
+      </ol>
+    );
 
     return (
-      <div className={`markline markline-${data.meta.theme}`}>
-        <header dangerouslySetInnerHTML={{ __html: data.title || ''}}></header>
+      <div className={`markline markline-${data.meta.theme}`} ref={this.refRoot}>
+        <header><SanitizedHTML html={data.title || ''} className="inline" /></header>
         <section
           onMouseDownCapture={this.onMouseDown}
           onMouseMoveCapture={this.onMouseMove}
@@ -257,17 +298,25 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
             className="dates"
             ref={this.refDates}
             style={{ left: -this.state.scrollLeft }}
-            dangerouslySetInnerHTML={{ __html: head_dates.join('') }}
-          />
+          >
+            {head_dates}
+          </div>
           <div
             className="events"
             ref={this.refBody}
             onScroll={this.onScroll}
-            dangerouslySetInnerHTML={{ __html: body_events.join('') }}
-          />
+          >
+            {
+              data.body.map(group => {
+                return <Group group={group} min_date={min_date} scrollLeft={this.state.scrollLeft} width={this.max_width} />;
+              })
+            }
+          </div>
         </section>
         <footer>
-          <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
+          <div>
+            <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
+          </div>
         </footer>
       </div>
     )

@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Timeline, IEvent } from "./timeline";
+import { Timeline } from "./timeline";
+import type { IGroup, ILine, IMarklineData, IMetadata } from './types';
 
 const DEFAULT_MENTION_URL = "https://github.com/{@mention}";
 
-function isString (object: any){
+function isString (object: any) {
   return Object.prototype.toString.call(object) === "[object String]";
 }
 
@@ -75,11 +76,18 @@ function parseDateEnd(date: string): Date {
   return dt;
 }
 
+export interface IParsedMarkdown {
+  html: string;
+  tags?: string[];
+  backgroundColor?: string;
+  textColor?: string;
+}
+
 // parse simple markdown.
 // @param {String} markdown.
 // @return {String} html tags.
 // TODO: meta types.
-function parseMarkdown(markdown: string, meta: any){
+function parseMarkdown(markdown: string, meta: IMetadata): IParsedMarkdown {
   const RE_IMAGE = /!\[([^\]]*)\]\(([^)]+)\)/g;
   const RE_INTERNAL_IMAGE = /!\[\[([^\]|]*)(?:\|([^\]]+))?\]\]/g;
   const RE_LINK = /\[([^\]]*)\]\(([^)]+)\)/g;
@@ -90,11 +98,17 @@ function parseMarkdown(markdown: string, meta: any){
   const RE_CODE = /`([^`]+)`/g
   const RE_MENTION = /(^|[^a-zA-Z0-9])@([^\s\t,()[\]{}]+)/g;
   const RE_MENTION_PLACEHOLDER = /\{@mention\}/ig;
-  const RE_HASHTAG = /(?:^|[\s\t])#([^\s\t]+)/g;
+  const RE_HASHTAG = /(?:^|[\s\t])(#([^\s\t]+))/g;
 
-  let html = markdown.replace(RE_IMAGE, '<a href="$2" class="img" title="$1" target="_blank"><i style="background-image:url($2)" /></a>');
+  let html = markdown.replace(RE_IMAGE, function($0, $1, $2) {
+    const url = $2 || $1;
+    const style = /^https?:\/\//.test(url) && /\.(?:png|gif|jpg|jpeg|webp)$/i.test(url) ? `style="background-image:url(${$2})"` : '';
+    return `<a href="${url}" class="img" title="${$1}" target="_blank" ${style}>${$1}</a>`;
+  });
   html = html.replace(RE_INTERNAL_IMAGE, function($0, $1, $2) {
-    return `<a href="obsidian://open?file=${encodeURIComponent($1)}" class="img"><span>${$2 || $1}</span></a>`;
+    const url = $2 || $1;
+    const style = /^https?:\/\//.test(url) && /\.(?:png|gif|jpg|jpeg|webp)$/i.test(url) ? `style="background-image:url(app://local/${$2})"` : '';
+    return `<a href="obsidian://open?file=${encodeURIComponent($1)}" class="img" ${style}><span>${$2 || $1}</span></a>`;
   });
   html = html.replace(RE_LINK, '<a href="$2" target="_blank">$1</a>');
   html = html.replace(RE_INTERNAL_LINK, function($0, $1, $2) {
@@ -116,33 +130,46 @@ function parseMarkdown(markdown: string, meta: any){
   }
 
   // #hashtags:
-  html = html.replace(RE_HASHTAG, function($0, $1_tag_name){
-    const tag_colors = meta.tags || meta.tag || {};
-    let style;
+  const tags: string[] = [];
+  let backgroundColor = '';
+  let textColor;
+  html = html.replace(RE_HASHTAG, function($0, $1_hashtag, $2_tag_name) {
+    const tag_colors = meta.hashtags || meta.hashtag || meta.tags || meta.tag || {};
 
-    if (tag_colors.hasOwnProperty($1_tag_name)) {
-      const tag_color = (tag_colors[$1_tag_name] || "").split(/,[\s\t]+/);
-      const color = tag_color[0];
-      const bg_color = tag_color[1];
-      style =  ' style="color:' + color + ';background-color:' + bg_color + ';"';
+    if (tag_colors.hasOwnProperty($2_tag_name)) {
+      // defined in metadata.
+      const tag_color = (tag_colors[$2_tag_name] || "").split(/,[\s\t]+/);
+      const bg_color = tag_color[0];
+      const color = tag_color[1];
+      tags.push($2_tag_name);
+      backgroundColor = bg_color;
+      textColor = color;
+    } else {
+      // not defined in metadata.
+      if (!backgroundColor) {
+        backgroundColor = $1_hashtag;
+      } else {
+        textColor = $1_hashtag;
+      }
     }
-    return '<span class="tags"' + style + '>#' + $1_tag_name + '</span>';
+    return '';
   });
 
-  return html;
+  return {
+    html,
+    tags,
+    backgroundColor,
+    textColor,
+  };
 }
 
 // parse markline.
 function parse(markdown: string){
   const lines = markdown.split(/\r\n|\r|\n/);
-  const data: {
-    title: string;
-    meta: Record<string, any>;
-    body: Record<string, any>;
-  } = {
+  const data: IMarklineData = {
     title: "",
     meta: {},
-    body: {},
+    body: [],
   };
 
   const re_title = /^#\s+(.*)$/;
@@ -151,40 +178,51 @@ function parse(markdown: string){
   const re_hr = /^-{2,}$/;
   const re_group = /^##{1,5}\s+(.*)$/;
   const re_line  = /^[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
-  const re_event  = /^\s+[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
+  const re_sub_event  = /^\s+[+*-]\s+(([0-9/-]+)(?:~([0-9/-]*))?)\s+(.*)$/;
 
-  let current_group = "";
-  let current_line;
+  let current_group: IGroup = { html:'', events: [] };
+  let current_line: ILine | undefined;
   let inline = false; // into group, line, or event body.
   let inmeta = false;
   let current_meta_name = '';
   let current_meta_value;
 
-  function addGroup(group_name: string){
-    while (data.body.hasOwnProperty(group_name)) {
-      group_name += " ";
-    }
-    current_group = parseMarkdown(group_name, data.meta);
-    data.body[current_group] = [];
+  function addGroup(group_name: string): void {
+    // 防止重复分组名称，对于数组形式来说不需要了。
+    // while (data.body.contains((item: IGroup) => item.name === group_name)) {
+    //   group_name += " ";
+    // }
+    const parsed = parseMarkdown(group_name, data.meta);
+    current_group = {
+      html: parsed.html,
+      tags: parsed.tags,
+      'background-color': parsed.backgroundColor,
+      'text-color': parsed.textColor,
+      events: [],
+    };
+    data.body.push(current_group);
 
     inline = true;
   }
 
-  for(let i=0,l=lines.length; i<l; i++){
+  for(let i = 0, l = lines.length; i < l; i++){
     const text_line = lines[i];
     let match = text_line.match(re_title);
     if (match){
-      // PARSE TITLE.
-      data.title = parseMarkdown(match[1], data.meta);
+      // parse title.
+      const title = parseMarkdown(match[1], data.meta);
+      data.title = title.html;
     } else if (!inline && (match = text_line.match(re_meta))) {
+      // parse metadata.
       const meta_name = match[1];
       const meta_value = match[2];
       data.meta[meta_name] = meta_value;
       current_meta_name = meta_name;
       current_meta_value = meta_value;
       inmeta = true;
-    } else if (!inline && (match = text_line.match(re_submeta))) {
-
+    } else if (inmeta && (match = text_line.match(re_submeta))) {
+      // parse sub-metadata.
+      // first time parse block sub-metadata, build an object.
       if (isString(data.meta[current_meta_name])) {
         data.meta[current_meta_name] = {
           "default": current_meta_value
@@ -194,51 +232,56 @@ function parse(markdown: string){
       const meta_name = match[1];
       const meta_value = match[2];
       data.meta[current_meta_name][meta_name] = meta_value;
-      // eslint-disable-next-line
       inmeta = true;
-    } else if (text_line.match(re_hr)){
+    } else if (text_line.match(re_hr)) {
       addGroup("");
     // eslint-disable-next-line no-cond-assign
-    } else if (match = text_line.match(re_group)){
-      // PARSE GRPUPS.
-      const group_name = match[1];
-      addGroup(group_name);
+    } else if (match = text_line.match(re_group)) {
+      // parse group.
+      addGroup(match[1]);
     // eslint-disable-next-line no-cond-assign
-    } else if (match = text_line.match(re_line)){
-      // PARSE EVENT LINES.
-
-      if (!data.body[current_group]){
-        data.body[current_group] = [];
-      }
+    } else if (match = text_line.match(re_line)) {
+      // parse event line.
+      // if (!data.body[current_group.html]){
+      //   data.body[current_group.html] = [];
+      // }
 
       const line_start = match[2];
       const line_stop = match[3] === undefined ? line_start : match[3];
       const line_name = match[4];
+      const parsed = parseMarkdown(line_name, data.meta);
       const data_line = {
         "date": match[1],
         "date-start": parseDate(line_start),
         "date-end": parseDateEnd(line_stop),
-        "name": parseMarkdown(line_name, data.meta),
-        "events": [] as IEvent[],
+        "name": parsed.html,
+        "background-color": parsed.backgroundColor,
+        "text-color": parsed.textColor,
+        "events": [],
       };
-      data.body[current_group].push(data_line);
+      // data.body[current_group.html].push(data_line);
+      current_group.events.push(data_line);
       current_line = data_line;
 
       inline = true;
     // eslint-disable-next-line no-cond-assign
-    } else if (match = text_line.match(re_event)) {
-      // PARSE SUB EVENT POINTS.
+    } else if (inline && (match = text_line.match(re_sub_event))) {
+      // parse sub event.
 
       const date = match[1];
       const date_start = match[2];
       const date_end = match[3] === undefined ? date_start : match[3];
       const name = match[4];
+      const parsed = parseMarkdown(name, data.meta);
 
       current_line?.events.push({
         "date": date,
         "date-start": parseDate(date_start),
         "date-end": parseDateEnd(date_end),
-        "name": parseMarkdown(name, data.meta)
+        "name": parsed.html,
+        tags: parsed.tags,
+        'background-color': parsed.backgroundColor,
+        'text-color': parsed.textColor,
       });
 
       inline = true;

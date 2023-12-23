@@ -16,8 +16,8 @@ export default class MarklinePlugin extends Plugin {
 
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
-			id: 'add-markline-block-command',
-			name: 'Add markline block quote',
+			id: 'add-markline-blockquote',
+			name: 'Add markline blockquote',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				// console.log(editor.getSelection());
 				editor.replaceSelection('```markline\n- 2023-12-01~ demo\n- 2023 more information see [obsidian-markline](https://github.com/hotoo/obsidian-markline).\n```');
