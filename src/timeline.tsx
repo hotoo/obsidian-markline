@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { IEvent, IGroup, IMarklineData, IProcessHandlers } from './types';
+import type { IEvent, IGroup, ILine, IMarklineData, IProcessHandlers } from './types';
 
 // const offset_top = 20; // offset top for date header.
 const offset_left = 30; // offset left for group name.
@@ -16,6 +16,105 @@ interface TimelineState {
   viewStartX: number;
   viewStartY: number;
   dragging: boolean;
+}
+
+interface GroupProps {
+  group: IGroup;
+  width: number;
+  scrollLeft: number;
+  min_date: Date;
+}
+class Group extends React.Component<GroupProps> {
+  render(): React.ReactNode {
+    const { group, width, scrollLeft, min_date } = this.props;
+    const style = {
+      'background-color': group["background-color"],
+      color: group["text-color"],
+      width: `${width}px`,
+    };
+    const styleLabel = {
+      left: `${scrollLeft - 90}px`,
+      'background-color': group["background-color"],
+    }
+    return (
+      <div className="groups" style={style}>
+        <label style={styleLabel}>{group.html}</label>
+        <ol>
+          {
+            group.events.map(line => {
+              return <Line line={line} min_date={min_date} />
+            })
+          }
+        </ol>
+      </div>
+    );
+  }
+}
+
+interface LineProps {
+  line: ILine;
+  min_date: Date;
+}
+class Line extends React.Component<LineProps> {
+  render () {
+    const { line, min_date } = this.props;
+    const date_start = line["date-start"];
+    const date_end = line["date-end"];
+    const line_start = calcLength(Number(date_start) - Number(min_date)) + offset_left;
+    const curr_offset_left = Number(date_start);
+    let line_length = calcLength(Number(date_end) - Number(date_start));
+    if (line_length < 8) {
+      line_length = 8;
+      //line_start -= 4;
+    }
+    const style = {
+      'margin-left': `${line_start}px`,
+      color: line["text-color"] || '',
+    };
+    const styleEvent = {
+      width: `${line_length}px`,
+      'background-color': line["background-color"] || '',
+    };
+
+    return (
+      <li style={style}>
+        <div>
+          <ol style={styleEvent}>
+            {
+              line.events.map(event => {
+                return <Event event={event} offset={curr_offset_left} />
+              })
+            }
+          </ol>
+          <time>{line.date}</time>
+          <label>{line.name}</label>
+        </div>
+      </li>
+    );
+  }
+}
+
+interface EventProps {
+  event: IEvent;
+  offset: number;
+}
+class Event extends React.Component<EventProps> {
+  render () {
+    const { event, offset } = this.props;
+    let event_start = calcLength(Number(event["date-start"]) - offset);
+    let event_width = calcLength(Number(event["date-end"]) - Number(event["date-start"]));
+    if (event_width < 8) {
+      event_width = 8;
+      event_start -= 4;
+    }
+    const style = {
+      left: `${event_start}px`,
+      width: `${event_width}px`,
+    }
+    return (
+      <li style={style} title={`${event.date} ${event.name}`}></li>
+    )
+  }
 }
 
 export class Timeline extends React.Component<TimelineProps, TimelineState> {
@@ -168,72 +267,22 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
     min_date = new Date(first_year, 0, 1);
 
     // HEAD: dates
-    const head_dates = ['<ol>'];
-
-    for(let year=first_year, age=0; year<=last_year; year++, age++){
-      head_dates.push('<li><label>', String(year), data.meta.age === "show" ? ' ('+ age +')' : '', '</label></li>')
-    }
-
-    head_dates.push('</ol>');
-
-    // BODY: events groups, and events.
-    const body_events = [''];
-    let current_line_offset_left = 0;
-
-    this._process(data.body, {
-      "group:start": function(group: IGroup){
-        const style = `background-color: ${group["background-color"]}; color: ${group["text-color"]}`;
-        body_events.push(
-          `<div class="groups" style="width:${this.max_width}px; ${style}">`,
-            '<label style="left: ', String(this.state.scrollLeft - 90), `px; background-color: ${group["background-color"]}">`, group.html, '</label>',
-            '<ol>'
-        );
-      },
-
-      "group:stop": function(){
-        body_events.push(
-            '</ol>',
-          '</div>'
-        );
-      },
-
-      "line:start": function(line: IEvent){
-        const date_start = line["date-start"];
-        const date_end = line["date-end"];
-        const line_start = calcLength(Number(date_start) - Number(min_date)) + offset_left;
-        current_line_offset_left = Number(date_start);
-        let line_length = calcLength(Number(date_end) - Number(date_start));
-        if (line_length < 8) {
-          line_length = 8;
-          //line_start -= 4;
+    const head_dates = (
+      <ol>
+        {
+          new Array(years).fill(0).map((item, index) => {
+            const age = index;
+            const showage = data.meta.age === 'show' ? ` (${age})` : '';
+            const year = first_year + age;
+            return (
+              <li>
+                <label>{year}{showage}</label>
+              </li>
+            )
+          })
         }
-
-        body_events.push(
-          '<li style="margin-left:', String(line_start), 'px; color:', line["text-color"] || '', '">',
-            '<div>',
-              '<ol style="width:', String(line_length), 'px; background-color:', line["background-color"] || '', ';">');
-      },
-
-      'line:stop': function(line: IEvent){
-        body_events.push(
-              '</ol>',
-              '<time>', line.date, '</time>',
-              '<label>', line.name, '</label>',
-            '</div>',
-          '</li>'
-        );
-      },
-
-      "event": function(event){
-        let event_start = calcLength(Number(event["date-start"]) - current_line_offset_left);
-        let event_width = calcLength(Number(event["date-end"]) - Number(event["date-start"]));
-        if (event_width < 8) {
-          event_width = 8;
-          event_start -= 4;
-        }
-        body_events.push('<li style="left:', String(event_start), 'px;width:', String(event_width), 'px" title="', event.date, ' ', event.name, '"></li>');
-      }
-    });
+      </ol>
+    );
 
     return (
       <div className={`markline markline-${data.meta.theme}`} ref={this.refRoot}>
@@ -247,14 +296,20 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
             className="dates"
             ref={this.refDates}
             style={{ left: -this.state.scrollLeft }}
-            dangerouslySetInnerHTML={{ __html: head_dates.join('') }}
-          />
+          >
+            { head_dates }
+          </div>
           <div
             className="events"
             ref={this.refBody}
             onScroll={this.onScroll}
-            dangerouslySetInnerHTML={{ __html: body_events.join('') }}
-          />
+          >
+            {
+              data.body.map(group => {
+                return <Group group={group} min_date={min_date} scrollLeft={this.state.scrollLeft} width={this.max_width} />;
+              })
+            }
+          </div>
         </section>
         <footer>
           <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
