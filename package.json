@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-markline",
-	"version": "1.0.1",
+	"version": "1.2.0",
 	"description": "This is a timeline viewer from markdown in Obsidian (https://github.com/hotoo/markline)",
 	"main": "main.js",
 	"scripts": {
@@ -35,7 +35,9 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
+		"@hotoo/react-sanitized-html": "^2.0.2",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"sanitize-html": "^2.11.0"
 	}
 }

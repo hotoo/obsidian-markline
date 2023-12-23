@@ -28,6 +28,9 @@ If your plugin does not need CSS, delete this file.
 
   -webkit-transform:translateZ(0);
 
+  .inline {
+    display: inline-block;
+  }
 
   > header ,
   > footer {
@@ -49,22 +52,26 @@ If your plugin does not need CSS, delete this file.
     &:hover {
       color: #999;
 
-      > a {
-        color: #6EA3D0;
+      > div {
+        > a {
+          color: #6EA3D0;
+        }
       }
     }
 
-    > a {
-      color: rgba(110,163,208,0.3);/*#6EA3D0;*/
-      text-decoration: none;
+    > div {
+      > a {
+        color: rgba(110,163,208,0.3);/*#6EA3D0;*/
+        text-decoration: none;
 
-      transition: color 0.3s ease-in-out;
-      -webkit-transition: color 0.3s ease-in-out;
-      -moz-transition: color 0.3s ease-in-out;
-      -o-transition: color 0.3s ease-in-out;
+        transition: color 0.3s ease-in-out;
+        -webkit-transition: color 0.3s ease-in-out;
+        -moz-transition: color 0.3s ease-in-out;
+        -o-transition: color 0.3s ease-in-out;
 
-      &:hover {
-        border-bottom: 1px solid rgba(110,163,208,0.5); /* #6EA3D0 */
+        &:hover {
+          border-bottom: 1px solid rgba(110,163,208,0.5); /* #6EA3D0 */
+        }
       }
     }
   }

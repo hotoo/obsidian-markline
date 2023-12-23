@@ -1,4 +1,6 @@
 import * as React from "react";
+// @ts-ignore error TS7016: Could not find a declaration file for module '@hotoo/react-sanitized-html'.
+import SanitizedHTML from '@hotoo/react-sanitized-html';
 import type { IEvent, IGroup, ILine, IMarklineData, IProcessHandlers } from './types';
 
 // const offset_top = 20; // offset top for date header.
@@ -87,7 +89,7 @@ class Line extends React.Component<LineProps> {
             }
           </ol>
           <time>{line.date}</time>
-          <label>{line.name}</label>
+          <label><SanitizedHTML className="inline" html={ line.name } /></label>
         </div>
       </li>
     );
@@ -286,7 +288,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
 
     return (
       <div className={`markline markline-${data.meta.theme}`} ref={this.refRoot}>
-        <header dangerouslySetInnerHTML={{ __html: data.title || ''}}></header>
+        <header><SanitizedHTML html={data.title || ''} className="inline" /></header>
         <section
           onMouseDownCapture={this.onMouseDown}
           onMouseMoveCapture={this.onMouseMove}
@@ -297,7 +299,7 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
             ref={this.refDates}
             style={{ left: -this.state.scrollLeft }}
           >
-            { head_dates }
+            {head_dates}
           </div>
           <div
             className="events"
@@ -312,7 +314,9 @@ export class Timeline extends React.Component<TimelineProps, TimelineState> {
           </div>
         </section>
         <footer>
-          <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
+          <div>
+            <a className="forkme" href="https://github.com/hotoo/obsidian-markline" target="_blank">Markline</a>
+          </div>
         </footer>
       </div>
     )
