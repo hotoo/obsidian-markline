@@ -15,7 +15,11 @@ Community plugins will be soon https://github.com/obsidianmd/obsidian-releases/p
 
 Manual installation:
 
-Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/latest) into your `<vault>/.obsidian/plugins/markline` folder.
+1. Unzip the [latest release](https://github.com/hotoo/obsidian-markline/releases/latest) into your `<vault>/.obsidian/plugins/markline` folder.
+2. Reload Obsidian.app
+3. Enable the plugin in the settings of community plugins section.
+
+You can also use the [BRAT](https://github.com/TfTHacker/obsidian42-brat/) plugin to install the latest release.
 
 ## Examples
 
