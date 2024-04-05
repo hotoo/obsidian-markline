@@ -89,7 +89,13 @@ class Line extends React.Component<LineProps> {
             }
           </ol>
           <time>{line.date}</time>
-          <label><SanitizedHTML className="inline" html={ line.name } /></label>
+          <label>
+            <SanitizedHTML
+              className="inline"
+              html={line.name}
+              allowedSchemes={['http', 'https', 'ftp', 'mailto', 'tel', 'obsidian']}
+            />
+          </label>
         </div>
       </li>
     );
