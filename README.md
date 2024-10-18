@@ -13,6 +13,10 @@ This is fork of [Markline](https://github.com/hotoo/markline), show timeline vie
 
 Community plugins:
 
+Click link https://obsidian.md/plugins?id=markline to install.
+
+or:
+
 1. Menu: Obsidian -> Perferences...
 2. If "Restricted mode" is off, click "Turn on community plugins" button.
 3. Click "Browser" button.
